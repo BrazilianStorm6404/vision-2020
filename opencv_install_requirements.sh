@@ -1,3 +1,8 @@
+sudo apt-get -y purge wolfram-engine
+sudo apt-get -y purge libreoffice*
+sudo apt-get clean
+sudo apt-get autoremove
+
 sudo apt-get -y install build-essential checkinstall cmake pkg-config yasm
 sudo apt-get -y install git gfortran
 sudo apt-get -y install libjpeg8-dev libjasper-dev libpng12-dev
