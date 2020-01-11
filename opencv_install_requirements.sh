@@ -26,3 +26,5 @@ sudo apt-get -y install x264 v4l-utils
 sudo apt-get -y install libprotobuf-dev protobuf-compiler
 sudo apt-get -y install libgoogle-glog-dev libgflags-dev
 sudo apt-get -y install libgphoto2-dev libeigen3-dev libhdf5-dev doxygen
+
+pip install opencv-contrib-python==4.1.0.25
