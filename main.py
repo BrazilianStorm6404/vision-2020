@@ -35,16 +35,9 @@ def process(frame): # método pra processar as imagens
 def distance_to_object(known_width, focal_length, percieved_width):
     return (known_width * focal_length) / percieved_width # esse cálculo é explicado no artigo
     
-def find_object(frame, bbox=[0, 0, 640, 480]):
-    # daqui até o próximo comentário é gambiarra, vc realmente não precisa disso aqui (e nem do parâmetro bbox)
-    x1, y1, w, h = bbox
-    x2 = x1 + w
-    y2 = y1 + h
-    x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
-    roi = frame[y1:y2, x1:x2] # região de interesse. dá pra viver sem isso aqui, é só otimização
-    # acabou a gambiarra
+def find_object(frame):
     height, width = frame.shape
-    contours, img = cv2.findContours(roi, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE) # encotra os contornos dentro da minha região de interesse
+    contours, img = cv2.findContours(frame, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE) # encotra os contornos 
     for contour in contours:
         contourArea = cv2.contourArea(contour)
         x,y,w,h = cv2.boundingRect(contour) # pega um retangulo baseado no contorno
@@ -53,7 +46,7 @@ def find_object(frame, bbox=[0, 0, 640, 480]):
         if evaluate(ratio, density): # se ele parecer com o retângulo do jogo de 2020 e não estiver esburacado...
             rectangle = [x, y, w, h]
             drawn_frame = frame
-            cv2.rectangle(roi, (x,y), (x+w, y+h), (255,255,255), 2) # desenha o retângulo da fita na imagem
+            cv2.rectangle(frame, (x,y), (x+w, y+h), (255,255,255), 2) # desenha o retângulo da fita na imagem
             cv2.imshow('frame', frame) # mostra a imagem com o retângulo desenhado
             return rectangle
 
