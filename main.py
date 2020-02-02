@@ -9,7 +9,7 @@
 import json
 import time
 import sys
-
+import math
 from cscore import CameraServer, VideoSource, UsbCamera, MjpegServer
 from networktables import NetworkTablesInstance
 import ntcore
@@ -71,6 +71,9 @@ KNOWN_DISTANCE = 118 # distância real do objeto para a câmera (só deve ser us
 KNOWN_WIDTH = 55 # largura real do objeto (usada para calcular a distância da câmera para o objeto)
 F = 333.82 # focal length
 STANDART_ERROR = 105
+
+HFOV = 61
+VFOV = 34.3
 
 def parseError(str):
     """Report parse error."""
@@ -251,7 +254,7 @@ def find_object(frame, bbox=[0, 0, 640, 480]):
         ratio = w/h
         # print([x, y, w, h])
         density = contourArea/(w*h)
-        print("Ratio: {0} Density: {1}".format(ratio, density))
+        # print("Ratio: {0} Density: {1}".format(ratio, density))
         if evaluate(ratio, density):
             rectangle = [x, y, w, h]
             return rectangle
@@ -261,6 +264,22 @@ def evaluate(ratio, density):
         if density > 0.05 and density < 0.15:
             return True
     return False
+
+# https://docs.limelightvision.io/en/latest/theory.html
+def calculate_angles(x, y, w, h):
+    nx = (1/160) * (x - 159.5)
+    ny = (1/120) * (119.5 - y)
+
+    vpw = 2.0 * math.tan(math.radians(HFOV/2))
+    vph = 2.0 * math.tan(math.radians(VFOV/2))
+
+    new_x = vpw / 2 * nx
+    new_y = vph / 2 * ny
+
+    ax = math.degrees(math.atan2(-1, new_x))
+    ay = math.degrees(math.atan2(-1, new_y))
+
+    return ax, ay
 
 if __name__ == "__main__":
     if len(sys.argv) >= 2:
@@ -311,6 +330,9 @@ if __name__ == "__main__":
         obj = find_object(filtered)
 
         if obj:
+            x, y, w, h = obj
+            ax, ay = calculate_angles(x, y, w, h)
+            print("ax: {0} ay: {1}".format(ax, ay))
             center = obj[0] + (obj[2] / 2)
             diff = (640/2) - center + STANDART_ERROR
             dist = distance_to_object(KNOWN_WIDTH, F, obj[3])
